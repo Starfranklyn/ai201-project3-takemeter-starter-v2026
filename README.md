@@ -38,9 +38,9 @@
 <!-- ═══════════════════════ UNIT 5 — THE BUILD ═══════════════════════ -->
 
 ## What This Does
+TakeMeter is a text classification project that analyzes public discussions from the r/datascience Reddit community. The goal is to train a machine learning model that classifies posts according to their primary purpose rather than their topic.
 
-<!-- Your community, and what your classifier sorts posts into. Three or four
-     sentences. -->
+During the initial review, I observed discussions about mistakes made while developing machine learning models, preparation for data science interviews, questions about the meaning of artificial intelligence, and tradeoffs in selecting metrics for marketplace experiments. These observations informed three candidate labels: `experience`, `question`, and `opinion`.
 
 
 
@@ -56,26 +56,186 @@
 
 ### `label_one`
 
-**Definition:**
+- **experience:** A post that primarily describes the author's
+  personal experiences, projects, challenges, or lessons learned.
 
-**Example 1:**
+- **question:** A post that primarily asks for information,
+  explanations, advice, or help.
+
+- **opinion:** A post that primarily expresses an argument,
+  evaluation, judgment, or viewpoint about a topic.
+
+- **promotion:** A post that primarily introduces or promotes
+  a product, article, project, service, or external resource.
 >
+### Real Post Examples
 
-**Example 2:**
->
+#### Experience
+**Example 1: Junior analyst without mentorship**
 
-### `label_two`
+- **Source:** r/datascience
+- **Post summary:** A junior analyst describes working without
+  experienced colleagues or professional mentorship.
+- **Label:** `experience`
+- **Reason:** The author describes working in three roles without
+  senior analysts or mentors. Although the post ends with career
+  questions, its main focus is the author's personal experience.
 
-**Definition:**
+**Example 2: Adtech modeling take-home assignment**
 
-**Example 1:**
->
+- **Source:** r/datascience
+- **Post:** An applicant describes being rejected after using
+  CatBoost for an adtech modeling assignment.
+- **Label:** `experience`
+- **Reason:** The author recounts a real modeling assignment,
+  explains why they selected CatBoost, and describes the
+  rejection they received. Although they criticize the
+  unclear expectations, the main focus is their firsthand
+  experience and modeling decisions.
+#### Question
+**Example 1: Decision support systems affecting future training data**
 
-**Example 2:**
->
+- **Source:** r/datascience
+- **Post summary:** A user asks how decision-support systems
+  can influence the data used to train future models.
+- **Label:** `question`
+- **Reason:** The author describes a hypothetical customer
+  churn model and asks for the technical term describing
+  how interventions can affect future training data.
+  The main purpose is to seek an explanation.
 
+**Example 2: How widely is R still used in industry today?**
+
+- **Source:** r/datascience
+- **Post summary:** A user asks whether R remains widely
+  used in professional data science compared with Python.
+- **Label:** `question`
+- **Reason:** The author explains their background in R and Python
+  and asks whether R is still relevant in industry. Although
+  the post contains personal context, its primary purpose
+  is to seek information about industry practices.
+#### Opinion
+**Example 1: Choosing metrics in data science interviews**
+
+- **Source:** r/datascience
+- **Post summary:** A user discusses the trade-off between
+  actionable business metrics and statistical power when
+  evaluating marketplace experiments.
+- **Label:** `opinion`
+- **Reason:** The author argues that actionable business metrics
+  can be statistically harder to evaluate than simpler metrics
+  such as conversion rates. The post develops a viewpoint
+  about how data scientists should approach metric selection.
+
+**Example 2: Silent broadcasting in machine learning**
+
+- **Source:** r/datascience
+- **Post summary:** A user argues that unintended tensor
+  broadcasting can introduce serious errors into machine
+  learning models and deserves greater attention.
+- **Label:** `opinion`
+- **Reason:** The author argues that silent broadcasting
+  can cause serious modeling errors and that data scientists
+  should pay more attention to tensor shapes. Although the
+  post describes a real incident, its main purpose is to
+  emphasize a technical problem and recommend greater caution.
+#### Promotion
+**Example 1: Interactive ML System Design Tool**
+
+- **Source:** r/datascience
+- **Post summary:** A developer introduces a free interactive
+  tool designed to help people learn machine learning
+  system design.
+- **Label:** `promotion`
+- **Reason:** The author introduces a free interactive tool,
+  shares its website, and describes its features. Although
+  the author mentions their professional experience, the
+  main purpose is to direct readers to the tool.
+
+**Example 2: AI for Game Design Article**
+
+- **Source:** r/datascience
+- **Post summary:** An author shares an article about
+  using artificial intelligence in tabletop game design.
+- **Label:** `promotion`
+- **Reason:** The author shares a link to an article about AI
+  in tabletop game design. Although they describe their
+  experience building AI playtesting models, the main purpose
+  is to introduce readers to their published article.
 ### The hardest boundary
+#### Experience vs Promotion
 
+A post may describe the author's personal work while also
+introducing an article, product, or project.
+
+I will use `experience` when the main purpose is to share
+what the author did, encountered, or learned.
+
+I will use `promotion` when the main purpose is to introduce
+or direct readers to an article, product, project, or resource.
+
+For example, a post introducing an article about AI in
+tabletop game design is classified as `promotion` because
+the author primarily shares a link to their published article,
+even though they also describe their experience using AI.
+#### Hard Case 1: Junior analyst without mentorship
+**Source:** r/datascience
+
+**Post summary:** A junior analyst describes working in several roles without experienced colleagues or mentorship.
+**Possible labels:** `experience` and `question`
+
+**Chosen label:** `experience`
+
+**Reason:** The author describes working in three nonprofit roles without other analysts or a senior colleague to learn from. Although the post ends with questions about career development, I classified it as `experience` because the author's personal history and frustration form the main focus.
+
+**Decision rule:** When a post combines personal experiences and questions, I will classify it as `experience` if the personal account is the main contribution and the questions mainly invite discussion. I will use `question` when the personal account primarily provides context for a specific request for help, advice, or information.
+
+**Remaining ambiguity:** Another person might choose `question` because the author asks for career guidance. I will revisit this example when checking labeling consistency.
+#### Hard Case 2: AI for Game Design Article
+
+**Source:** r/datascience
+
+**Post summary:** An author shares a published article about using AI models to support tabletop game design and playtesting.
+
+**Possible labels:** `experience` and `promotion`
+
+**Chosen label:** `promotion`
+
+**Reason:** The author describes using AI to build playtesting
+models and writing about machine learning in game design.
+However, the main purpose of the post is to share a link
+to their published article.
+
+**Decision rule:** When a post describes personal work but
+primarily directs readers to an article, product, or project,
+I will classify it as `promotion`.
+
+**Remaining ambiguity:** Another annotator might choose
+`experience` because the author discusses their own projects.
+#### Hard Case 3: Queryable Lossless Compression
+
+**Source:** r/datascience
+
+**Post summary:** A developer presents a lossless compression
+tool that supports queries on compressed tables and logs.
+**Possible labels:** `opinion` and `promotion`
+
+**Chosen label:** `promotion`
+
+**Reason:** The author introduces the TinyFiles compression
+tool and describes its capabilities. Although the post
+contains positive claims about the technology, its main
+purpose is to present a specific tool to readers.
+
+**Decision rule:** I will use `promotion` when a post
+primarily introduces a product, tool, or resource.
+I will use `opinion` when the main purpose is to
+express or defend a viewpoint, even if the author
+mentions a particular product.
+
+**Remaining ambiguity:** Another annotator might choose
+`opinion` because the author makes claims about the
+benefits of the compression approach.
 **Which two labels:**
 
 **The decision rule I used every time:**
