@@ -552,5 +552,34 @@ learned:**
      ═════════════════════════════════════════════════════════════════════ -->
 
 ---
+## Dataset Collection Progress
 
+TakeMeter uses public discussions from the r/datascience
+Reddit community to classify posts into four categories:
+question, experience, opinion, and promotion.
+
+### Current Progress
+
+- Target dataset: 200 posts.
+- Posts collected and independently labeled: 20.
+- Labeling method: Manual cold labeling for the first 20 posts.
+- Remaining posts: 180.
+- Reddit Data API access: Requested; approval pending.
+
+### Data Collection and Review
+
+The initial 20 posts were labeled without AI assistance.
+Each post has a primary label and a note indicating that
+it was cold-labeled.
+
+The remaining posts will be collected through an authorized
+method. AI may suggest labels, but every suggested label
+will receive human review before inclusion in the dataset.
+
+### Data Handling
+
+The working dataset is stored locally in labels.csv.
+Full Reddit post text will not be uploaded to the public
+GitHub repository while applicable data-sharing permissions
+remain unresolved.
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
