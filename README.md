@@ -38,9 +38,13 @@
 <!-- ═══════════════════════ UNIT 5 — THE BUILD ═══════════════════════ -->
 
 ## What This Does
-TakeMeter is a text classification project that analyzes public discussions from the r/datascience Reddit community. The goal is to train a machine learning model that classifies posts according to their primary purpose rather than their topic.
+TakeMeter is a text classification project that uses questions collected from Data Science Stack Exchange to identify the primary intent behind a technical question. The goal is to train a machine learning model that distinguishes between four types of questions: conceptual, troubleshooting, learning, and technical_advice.
 
-During the initial review, I observed discussions about mistakes made while developing machine learning models, preparation for data science interviews, questions about the meaning of artificial intelligence, and tradeoffs in selecting metrics for marketplace experiments. These observations informed three candidate labels: `experience`, `question`, and `opinion`.
+The categories describe what the author wants to accomplish rather than the technical subject of the question. For example, two questions about machine learning may belong to different categories if one asks for an explanation of an algorithm and the other asks for help resolving an implementation error.
+
+I collected and labeled 225 questions from Data Science Stack Exchange. I then fine-tuned a pretrained DistilBERT model using 157 training examples, 34 validation examples, and 34 held-out test examples.
+
+The initial model achieved 38.2% test accuracy and a macro F1 score of 0.138. Its predictions were heavily concentrated in the technical_advice category, which indicates that the model has not yet learned to distinguish the four question types reliably. These results provide a starting point for the evaluation and improvement work in Unit 6.
 
 
 
@@ -48,199 +52,91 @@ During the initial review, I observed discussions about mistakes made while deve
 
 ## Label Taxonomy
 
-<!-- Each label: a one-sentence definition and two real examples from your
-     reading. Then your decision rule for the hardest boundary.
+TakeMeter uses four labels to classify questions according to the author's primary intent. Each question receives one label, even when it contains elements of more than one category.
 
-     The decision rule is worth a point on its own and it's the thing most
-     people leave out. Every taxonomy has a hardest boundary. Name yours. -->
+1. conceptual
 
-### `label_one`
+Definition: Questions that seek explanations, interpretations, or deeper understanding of data science concepts, principles, and analytical reasoning.
 
-- **experience:** A post that primarily describes the author's
-  personal experiences, projects, challenges, or lessons learned.
+Example 1: Difference between Global Outlier and Contextual Outlier?
 
-- **question:** A post that primarily asks for information,
-  explanations, advice, or help.
+The author questions whether contextual outliers are fundamentally different from global outliers when contextual attributes are included in the feature vector.
 
-- **opinion:** A post that primarily expresses an argument,
-  evaluation, judgment, or viewpoint about a topic.
+Why this label: The main purpose is to understand the conceptual distinction between two types of outliers.
 
-- **promotion:** A post that primarily introduces or promotes
-  a product, article, project, service, or external resource.
->
-### Real Post Examples
+Example 2: Thought process behind data analysis
 
-#### Experience
-**Example 1: Junior analyst without mentorship**
+The author wants to understand how experienced analysts decide which variables to explore, which visualizations to create, and how to approach exploratory data analysis.
 
-- **Source:** r/datascience
-- **Post summary:** A junior analyst describes working without
-  experienced colleagues or professional mentorship.
-- **Label:** `experience`
-- **Reason:** The author describes working in three roles without
-  senior analysts or mentors. Although the post ends with career
-  questions, its main focus is the author's personal experience.
+Why this label: The question focuses on analytical reasoning rather than fixing a specific technical problem.
 
-**Example 2: Adtech modeling take-home assignment**
+2. troubleshooting
 
-- **Source:** r/datascience
-- **Post:** An applicant describes being rejected after using
-  CatBoost for an adtech modeling assignment.
-- **Label:** `experience`
-- **Reason:** The author recounts a real modeling assignment,
-  explains why they selected CatBoost, and describes the
-  rejection they received. Although they criticize the
-  unclear expectations, the main focus is their firsthand
-  experience and modeling decisions.
-#### Question
-**Example 1: Decision support systems affecting future training data**
+Definition: Questions that seek help resolving a technical problem, unexpected result, implementation difficulty, or system limitation.
 
-- **Source:** r/datascience
-- **Post summary:** A user asks how decision-support systems
-  can influence the data used to train future models.
-- **Label:** `question`
-- **Reason:** The author describes a hypothetical customer
-  churn model and asks for the technical term describing
-  how interventions can affect future training data.
-  The main purpose is to seek an explanation.
+Example 1: R random forest on Amazon EC2 — cannot allocate vector of size 5.4 GB
 
-**Example 2: How widely is R still used in industry today?**
+The author can train a random forest locally but receives a memory allocation error when running the same model on Amazon EC2.
 
-- **Source:** r/datascience
-- **Post summary:** A user asks whether R remains widely
-  used in professional data science compared with Python.
-- **Label:** `question`
-- **Reason:** The author explains their background in R and Python
-  and asks whether R is still relevant in industry. Although
-  the post contains personal context, its primary purpose
-  is to seek information about industry practices.
-#### Opinion
-**Example 1: Choosing metrics in data science interviews**
+Why this label: The author describes a specific error and requests a workaround.
 
-- **Source:** r/datascience
-- **Post summary:** A user discusses the trade-off between
-  actionable business metrics and statistical power when
-  evaluating marketplace experiments.
-- **Label:** `opinion`
-- **Reason:** The author argues that actionable business metrics
-  can be statistically harder to evaluate than simpler metrics
-  such as conversion rates. The post develops a viewpoint
-  about how data scientists should approach metric selection.
+Example 2: Image Classification with two very similar and random-ish classes
 
-**Example 2: Silent broadcasting in machine learning**
+The author trains neural networks to predict currency movements from chart images but cannot improve accuracy beyond approximately 50%.
 
-- **Source:** r/datascience
-- **Post summary:** A user argues that unintended tensor
-  broadcasting can introduce serious errors into machine
-  learning models and deserves greater attention.
-- **Label:** `opinion`
-- **Reason:** The author argues that silent broadcasting
-  can cause serious modeling errors and that data scientists
-  should pay more attention to tensor shapes. Although the
-  post describes a real incident, its main purpose is to
-  emphasize a technical problem and recommend greater caution.
-#### Promotion
-**Example 1: Interactive ML System Design Tool**
+Why this label: The author describes an unsuccessful modeling attempt and seeks help identifying the cause.
 
-- **Source:** r/datascience
-- **Post summary:** A developer introduces a free interactive
-  tool designed to help people learn machine learning
-  system design.
-- **Label:** `promotion`
-- **Reason:** The author introduces a free interactive tool,
-  shares its website, and describes its features. Although
-  the author mentions their professional experience, the
-  main purpose is to direct readers to the tool.
+3. learning
 
-**Example 2: AI for Game Design Article**
+Definition: Questions that seek clarification of a topic or technique as part of the author's learning process, often referencing educational materials or a specific gap in understanding.
 
-- **Source:** r/datascience
-- **Post summary:** An author shares an article about
-  using artificial intelligence in tabletop game design.
-- **Label:** `promotion`
-- **Reason:** The author shares a link to an article about AI
-  in tabletop game design. Although they describe their
-  experience building AI playtesting models, the main purpose
-  is to introduce readers to their published article.
-### The hardest boundary
-#### Experience vs Promotion
+Example 1: What exactly is bootstrapping in reinforcement learning?
 
-A post may describe the author's personal work while also
-introducing an article, product, or project.
+The author asks what bootstrapping means in reinforcement learning and why temporal-difference methods use it while Monte Carlo methods do not.
 
-I will use `experience` when the main purpose is to share
-what the author did, encountered, or learned.
+Why this label: The author seeks clarification of a concept they are studying.
 
-I will use `promotion` when the main purpose is to introduce
-or direct readers to an article, product, project, or resource.
+Example 2: Why do popular search engines not follow the usual AND, OR logic for queries?
 
-For example, a post introducing an article about AI in
-tabletop game design is classified as `promotion` because
-the author primarily shares a link to their published article,
-even though they also describe their experience using AI.
-#### Hard Case 1: Junior analyst without mentorship
-**Source:** r/datascience
+The author is studying information retrieval and wants to understand why search engine results do not always follow the Boolean logic described in a textbook exercise.
 
-**Post summary:** A junior analyst describes working in several roles without experienced colleagues or mentorship.
-**Possible labels:** `experience` and `question`
+Why this label: The question arises from a learning exercise and asks for clarification of the observed behavior.
 
-**Chosen label:** `experience`
+4. technical_advice
 
-**Reason:** The author describes working in three nonprofit roles without other analysts or a senior colleague to learn from. Although the post ends with questions about career development, I classified it as `experience` because the author's personal history and frustration form the main focus.
+Definition: Questions that seek recommendations, comparisons, implementation approaches, or guidance on selecting tools and technologies.
 
-**Decision rule:** When a post combines personal experiences and questions, I will classify it as `experience` if the personal account is the main contribution and the questions mainly invite discussion. I will use `question` when the personal account primarily provides context for a specific request for help, advice, or information.
+Example 1: How to learn NoSQL databases and how to know when SQL or NoSQL is better
 
-**Remaining ambiguity:** Another person might choose `question` because the author asks for career guidance. I will revisit this example when checking labeling consistency.
-#### Hard Case 2: AI for Game Design Article
+The author asks for learning resources, use cases, and recommendations about choosing between SQL and NoSQL databases.
 
-**Source:** r/datascience
+Why this label: The question requests practical recommendations and technology-selection guidance.
 
-**Post summary:** An author shares a published article about using AI models to support tabletop game design and playtesting.
+Example 2: What do you use to generate a dashboard in R?
 
-**Possible labels:** `experience` and `promotion`
+The author wants recommendations for packages that can generate periodic dashboard reports containing tables and charts.
 
-**Chosen label:** `promotion`
+Why this label: The main purpose is to select suitable tools for a specific reporting task.
 
-**Reason:** The author describes using AI to build playtesting
-models and writing about machine learning in game design.
-However, the main purpose of the post is to share a link
-to their published article.
+The Hardest Boundary: conceptual vs. learning
 
-**Decision rule:** When a post describes personal work but
-primarily directs readers to an article, product, or project,
-I will classify it as `promotion`.
+These categories overlap because both can involve requests for explanations.
 
-**Remaining ambiguity:** Another annotator might choose
-`experience` because the author discusses their own projects.
-#### Hard Case 3: Queryable Lossless Compression
+Decision rule: I use learning when the question explicitly focuses on understanding material the author is studying, such as a textbook exercise or a specific technique they are trying to learn. I use conceptual when the primary purpose is to examine a broader principle, interpretation, or analytical distinction without an explicit educational framing.
 
-**Source:** r/datascience
+For example, the bootstrapping question is labeled learning because it asks for clarification of a technique. The global-versus-contextual-outlier question is labeled conceptual because it challenges the distinction between two theoretical categories.
 
-**Post summary:** A developer presents a lossless compression
-tool that supports queries on compressed tables and logs.
-**Possible labels:** `opinion` and `promotion`
+Remaining ambiguity: This distinction is not always clear. The outlier question also references a textbook, and another annotator could reasonably classify it as learning. The rule is therefore provisional and should be tested for consistency during Unit 6.
 
-**Chosen label:** `promotion`
+Additional Boundary: troubleshooting vs. conceptual
 
-**Reason:** The author introduces the TinyFiles compression
-tool and describes its capabilities. Although the post
-contains positive claims about the technology, its main
-purpose is to present a specific tool to readers.
+Some questions describe a technical failure while also asking for an explanation.
 
-**Decision rule:** I will use `promotion` when a post
-primarily introduces a product, tool, or resource.
-I will use `opinion` when the main purpose is to
-express or defend a viewpoint, even if the author
-mentions a particular product.
+Decision rule: When the author presents an actual error, failed experiment, or unexpected result and seeks help resolving it, I prefer troubleshooting. When the author primarily seeks an explanation of a principle without requesting a fix, I prefer conceptual.
 
-**Remaining ambiguity:** Another annotator might choose
-`opinion` because the author makes claims about the
-benefits of the compression approach.
-**Which two labels:**
+For example, the Amazon EC2 memory allocation error is troubleshooting because the author requests a workaround.
 
-**The decision rule I used every time:**
-<!-- e.g. "If the post names a specific checkable fact, it's `analysis`, even
-     if the tone is heated." -->
+An existing question about poor CNN validation loss is labeled conceptual in the dataset, although its request for a code-level solution may better fit troubleshooting. I have retained the original label for the initial training run and identified it as a case to review during the labeling consistency assessment.
 
 
 
@@ -248,98 +144,208 @@ benefits of the compression approach.
 
 ## The Dataset
 
-<!-- Where you collected from, how you labelled, your counts, and three hard
-     cases. -->
+### Where the questions came from
 
-**Where the posts came from:**
+I collected 225 publicly available questions from Data Science Stack Exchange, a question-and-answer community where users discuss machine learning, statistics, data analysis, and related technical subjects.
 
-**How I labelled them:** <!-- Cold first? Pre-labelled with AI and corrected?
-Say so plainly — the disclosure is required, not penalised. -->
+I selected this source because the questions represent different types of information needs. Some users want explanations of concepts, others need help resolving technical problems, while others request learning guidance or recommendations about tools and methods.
 
-**Counts per label:**
+The dataset is stored in `labels.csv`. Each record contains the question text, assigned label, annotation note, question identifier, source URL, author, and license information.
+
+### How I labeled the questions
+
+I began by manually labeling 20 questions without AI assistance. This initial exercise helped me examine the questions and understand the difficulties involved in distinguishing their primary intent.
+
+For the remaining 205 questions, I used AI-generated label suggestions and reviewed the suggested classifications myself. The AI suggestions were not treated as final labels.
+
+I used four categories: `conceptual`, `troubleshooting`, `learning`, and `technical_advice`.
+
+Each question received one primary label based on its main purpose.
+
+### Counts per label
 
 | Label | Count | Share |
-|---|---|---|
-|  |  |  |
-|  |  |  |
-|  |  |  |
-| **Total** |  | 100% |
+|---|---:|---:|
+| `conceptual` | 71 | 31.6% |
+| `troubleshooting` | 44 | 19.6% |
+| `learning` | 22 | 9.8% |
+| `technical_advice` | 88 | 39.1% |
+| **Total** | **225** | **100%** |
 
-**Three hard cases**
+The largest category is `technical_advice`, representing 39.1% of the dataset. The smallest is `learning`, with 22 questions.
 
-<!-- Any post that made you pause: what it was, which two labels it could have
-     been, and what you chose. These are worth more than the easy 190. -->
+Although no category exceeds the 40% limit established in my acceptance criteria, the distribution is not equal. This imbalance may affect the model's ability to recognize categories with fewer training examples.
 
-**1.**
-> *The post:*
->
-> *Could have been:*
->
-> *I chose, because:*
+### Three Hard Cases
 
-**2.**
-> *The post:*
->
-> *Could have been:*
->
-> *I chose, because:*
+**1. Really bad value of Val loss**
 
-**3.**
-> *The post:*
->
-> *Could have been:*
->
-> *I chose, because:*
+- **The question:** The author trains a CNN for music genre classification and obtains poor validation loss despite otherwise satisfactory results.
+- **Could have been:** `conceptual` or `troubleshooting`.
+- **I chose:** `conceptual` in the initial dataset.
+- **Why it was difficult:** The author discusses overfitting, which involves conceptual understanding, but also asks how to solve the problem in code. Under the current taxonomy, `troubleshooting` may be a better fit. I retained the original label for the initial experiment and identified this example for consistency review.
+
+**2. What exactly is bootstrapping in reinforcement learning?**
+
+- **The question:** The author asks what bootstrapping means and why temporal-difference methods use it while Monte Carlo methods do not.
+- **Could have been:** `learning` or `conceptual`.
+- **I chose:** `learning`.
+- **Why it was difficult:** The question asks for a theoretical explanation, which fits `conceptual`. However, I classified it as `learning` because the author's main purpose is to clarify a specific technique.
+
+**3. How to learn NoSQL databases and how to know when SQL or NoSQL is better**
+
+- **The question:** The author asks for NoSQL learning resources, explanations of SQL and NoSQL use cases, and recommendations.
+- **Could have been:** `learning` or `technical_advice`.
+- **I chose:** `technical_advice`.
+- **Why it was difficult:** The question explicitly mentions learning NoSQL, but it also requests practical guidance about choosing between database technologies. I selected `technical_advice` because recommendations and technology selection form a substantial part of the request.
+
+### Data limitations
+
+The dataset contains only 225 examples, and the categories are unevenly represented. Some questions also contain overlapping intentions, which makes consistent labeling difficult.
+
+The initial training run will serve as a baseline for examining these limitations. I will investigate classification errors and labeling consistency in Unit 6 before deciding whether to revise the taxonomy or training approach.
 
 ---
 
 ## The Training Run
 
-<!-- Your starting model, your settings, and anything you changed and why. -->
+### Base Model
 
-**Base model:**
+I used `distilbert-base-uncased`, a pretrained transformer model available through Hugging Face.
 
-**Settings:** <!-- epochs, learning rate, batch size, seed -->
+I selected DistilBERT because it provides a relatively lightweight starting point for text classification. It also allowed me to fine-tune a pretrained language model on my local computer without requiring a dedicated GPU.
 
-**Anything I changed from the defaults, and why:**
+The model was configured to classify questions into four categories: `conceptual`, `troubleshooting`, `learning`, and `technical_advice`.
 
-**Split sizes:** <!-- train / val / test, and per-label counts in the test
-split. If a label had fewer than about 8 in test, say so — it explains a lot
-of next unit's variance. -->
+### Training Configuration
 
+| Parameter | Value |
+|---|---|
+| Base model | `distilbert-base-uncased` |
+| Number of labels | 4 |
+| Training epochs | 3 |
+| Learning rate | 0.00002 (2e-5) |
+| Batch size | 16 |
+| Maximum sequence length | 128 tokens |
+| Random seed | 42 |
+| Training framework | PyTorch and Hugging Face Transformers |
+| Training device | CPU |
 
+### Dataset Split
+
+I used a stratified split to preserve the approximate distribution of the four categories across training, validation, and test sets.
+
+| Category | Training | Validation | Test |
+|---|---:|---:|---:|
+| `conceptual` | 49 | 11 | 11 |
+| `troubleshooting` | 30 | 7 | 7 |
+| `learning` | 16 | 3 | 3 |
+| `technical_advice` | 62 | 13 | 13 |
+| **Total** | **157** | **34** | **34** |
+
+The split allocated approximately 70% of the dataset to training, 15% to validation, and 15% to testing.
+
+The `learning` category had only three test examples, while `troubleshooting` had seven. Performance estimates for these smaller categories are therefore sensitive to individual predictions.
+
+### Changes from the Starting Configuration
+
+I replaced the starter notebook's original label names with the four categories used in my dataset.
+
+I also updated the dataset validation check to enforce my chosen maximum category share of 40%, rather than the starter's 70% threshold.
+
+I retained the initial three-epoch training configuration and used a fixed random seed to make the dataset split and training run reproducible.
+
+### Initial Training Results
+
+The model completed three training epochs on the CPU.
+
+| Epoch | Training Loss | Validation Loss | Validation Accuracy | Validation Macro F1 |
+|---|---:|---:|---:|---:|
+| 1 | 1.3412 | 1.2774 | 47.1% | 0.255 |
+| 2 | 1.2456 | 1.2251 | 41.2% | 0.183 |
+| 3 | 1.1910 | 1.2040 | 44.1% | 0.221 |
+
+Although training loss decreased, validation performance remained low.
+
+### Held-Out Test Results
+
+After training, I evaluated the model on the 34 held-out test examples.
+
+**Overall test accuracy:** 38.2%
+
+**Macro F1 score:** 0.138
+
+| Category | Test F1 | Number of examples |
+|---|---:|---:|
+| `conceptual` | 0.000 | 11 |
+| `troubleshooting` | 0.000 | 7 |
+| `learning` | 0.000 | 3 |
+| `technical_advice` | 0.553 | 13 |
+
+The confusion matrix showed that the model predicted `technical_advice` for all 34 test questions.
+
+This explains why the model correctly classified the 13 `technical_advice` questions but failed to identify the other three categories.
+
+The model therefore did not meet my predefined accuracy and per-category F1 targets.
+
+### Output Files
+
+The notebook generated two files:
+
+- `results.json` — records test accuracy, macro F1, per-category performance, confusion counts, confidence statistics, and training environment information.
+- `test_split.csv` — preserves the held-out test examples for subsequent evaluation.
+
+These files document the initial training run and provide evidence for the model evaluation and improvement work in Unit 6.
 
 ---
 
 ## How I Used AI
 
-<!-- Two specific moments — what you asked, what came back, what you changed.
+I used ChatGPT to assist with dataset preparation, Python development, and troubleshooting during this project. I reviewed the suggestions and made the final decisions about the dataset, classification labels, and training configuration.
 
-     ⚠️ Plus disclosure of any pre-labelling. If you had a model pre-label a
-     batch and then read and corrected every one, say that. It's an allowed
-     workflow and disclosing it costs you nothing. Not disclosing it is the
-     problem. -->
+### Moment 1: Dataset Labeling
 
-**Moment 1**
+**What I asked for:**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+I used AI to suggest classifications for questions collected from Data Science Stack Exchange. The objective was to assign each question to one of four categories: `conceptual`, `troubleshooting`, `learning`, or `technical_advice`.
 
-**Moment 2**
+**What came back:**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+AI suggested labels based on the apparent purpose of each question. Some questions were straightforward, while others could reasonably fit more than one category.
 
-**Pre-labelling disclosure:**
+**What I changed:**
 
-<!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
+I reviewed the suggested labels rather than accepting them automatically. I also examined ambiguous examples and documented decision rules for distinguishing categories with overlapping meanings.
 
-     Don't fill these in during unit 5.
-     ═══════════════════════════════════════════════════════════════════ -->
+For example, questions requesting explanations can fit either `conceptual` or `learning`, depending on their primary purpose. Similarly, questions describing implementation problems can overlap with `technical_advice`.
 
----
+### Moment 2: Model Training and Troubleshooting
+
+**What I asked for:**
+
+I used ChatGPT to help me understand the starter notebook, configure the Python environment, run DistilBERT training, and interpret the evaluation results.
+
+**What came back:**
+
+ChatGPT explained the training configuration, dataset splitting process, and evaluation metrics. It also helped me investigate why the model performed poorly after training.
+
+**What I changed:**
+
+I configured the notebook to use my four classification labels, updated the dataset validation threshold to match my acceptance criteria, and executed the training and evaluation cells.
+
+After obtaining a test accuracy of 38.2% and a macro F1 score of 0.138, I examined the confusion matrix and validation predictions.
+
+The confusion matrix showed that the model predicted `technical_advice` for every test example. I documented this behavior instead of changing the acceptance criteria or reporting the model as successful.
+
+### Pre-Labeling Disclosure
+
+The dataset contains 225 labeled questions.
+
+I manually labeled the first 20 questions without AI assistance. For the remaining 205 questions, I used AI-generated label suggestions and reviewed them before including them in the dataset.
+
+The annotation notes in `labels.csv` distinguish the initial manually labeled questions from the AI-suggested, human-reviewed questions.
+
+AI assisted with the labeling and development process, but the initial model's evaluation results are reported without alteration.
 
 ## Baseline vs. Trained
 

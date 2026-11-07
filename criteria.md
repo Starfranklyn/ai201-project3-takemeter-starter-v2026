@@ -58,12 +58,14 @@ on the held-out test dataset.
 
 **Why this target:**
 
-The dataset contains four labels: experience, question,
-opinion, and promotion. Some posts combine personal experiences
-with questions or promote resources while expressing opinions.
-I chose 65% because it represents useful performance despite
-these overlapping categories and is substantially higher than
+The dataset contains 225 Data Science Stack Exchange questions
+across four categories: conceptual, troubleshooting, learning,
+and technical_advice. Some questions ask for both explanations
+and implementation guidance, making their primary intent
+difficult to distinguish. I chose 65% because it represents
+useful classification performance and substantially exceeds
 the 25% accuracy of uniform random guessing.
+
 ## 2. Minimum F1-Score for Every Label
 
 The classifier must achieve an F1-score of at least 0.50
@@ -71,13 +73,13 @@ for each of the four labels on the held-out test dataset.
 
 **Why this target:**
 
-The dataset contains four categories, and some posts
-have overlapping characteristics. For example, an
-experience post may end with a question, while a
-promotion post may contain personal experiences.
-I chose 0.50 because each category should have
-reasonable predictive performance, even when the
-small number of test examples causes scores to vary.
+The learning category contains only 22 questions, compared
+with 88 technical_advice questions. This imbalance means
+that learning will have relatively few examples in the
+held-out test set, making its F1-score more sensitive to
+individual prediction errors. I chose 0.50 to require
+reasonable performance across all four categories without
+expecting identical results from differently sized groups.
 
 ## 3. Dataset Label Balance
 
@@ -86,14 +88,12 @@ total labeled dataset.
 
 **Why this target:**
 
-The dataset contains four categories: experience,
-question, opinion, and promotion. Since posts from
-r/datascience frequently ask technical questions,
-the question category could dominate the dataset.
-I chose 40% to limit this imbalance while allowing
-for natural differences in how frequently each type
-of post appears.
-
+Technical_advice is the largest category, with 88 of the
+225 questions (39.1%). Many Data Science Stack Exchange
+users ask for help choosing algorithms, libraries, or
+implementation methods. I chose 40% to prevent this
+category from dominating the dataset while preserving
+the natural distribution of question types.
 
 ## 4. Labeling Consistency
 
@@ -102,13 +102,12 @@ same label as me to at least 80% of a sample of 20 posts.
 
 **Why this target:**
 
-The four labels can overlap. For example, a post may
-describe a personal experience while asking for advice,
-or introduce a tool while expressing an opinion.
-I chose 80% agreement because the taxonomy should
-be clear enough for another person to apply consistently.
-On a sample of 20 posts, this means agreeing on at
-least 16 classifications.
+Some questions fall near the boundary between conceptual
+and technical_advice, while others could be interpreted
+as troubleshooting or learning. I chose 80% because
+another annotator should be able to apply the category
+definitions consistently. For 20 questions, this
+requires agreement on at least 16.
 
 ## 5. High-Confidence Prediction Accuracy
 
@@ -118,13 +117,14 @@ accuracy.
 
 **Why this target:**
 
-Some r/datascience posts overlap multiple labels,
-especially experience versus question and opinion
-versus promotion. When the classifier assigns a
-confidence score of 0.80 or higher, I expect its
-predictions to be more reliable. I chose 75% because
-high-confidence predictions should outperform the
-65% overall accuracy target.
+Questions that clearly describe software errors may be
+easier to classify than questions that combine explanations
+with requests for technical recommendations. I chose 75%
+because predictions with confidence of at least 0.80
+should be more reliable than the overall 65% accuracy
+target. This criterion will be evaluated only if the
+model produces such predictions; an empty group does
+not count as a pass.
 
 <!-- ─────────────────────────────────────────────────────────────────────────
      UNIT 6 — read this before you change anything above.
