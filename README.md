@@ -374,30 +374,31 @@ AI assisted with the labeling and development process, but the initial model's e
 
 ---
 
-## Run Log — Before
+### Run Log — Before
 
-<!-- Five criteria across three seeds. The notebook's section 6 prints the
-     spread table; the Target and Verdict columns are yours. -->
+**Training environment:** CPU, PyTorch 2.15.0+cu132, maximum sequence length 128.
 
-| Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
-|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+**Random seeds:** 42, 7, 2024.
 
-### Confusion matrix
-
-<!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
-     An image of a matrix earns nothing. -->
-
-| true \ predicted |  |  |  |
+| Metric | Seed 42 | Seed 7 | Seed 2024 |
 |---|---|---|---|
-| **** |  |  |  |
-| **** |  |  |  |
-| **** |  |  |  |
+| Accuracy | 0.382 | 0.382 | 0.382 |
+| Macro F1 | 0.138 | 0.138 | 0.138 |
+| F1 — `conceptual` | 0.000 | 0.000 | 0.000 |
+| F1 — `troubleshooting` | 0.000 | 0.000 | 0.000 |
+| F1 — `learning` | 0.000 | 0.000 | 0.000 |
+| F1 — `technical_advice` | 0.553 | 0.553 | 0.553 |
 
+**Confusion matrix**
+
+| true \ predicted | conceptual | troubleshooting | learning | technical_advice |
+|---|---|---|---|---|
+| **conceptual** | 0 | 0 | 0 | 11 |
+| **troubleshooting** | 0 | 0 | 0 | 7 |
+| **learning** | 0 | 0 | 0 | 3 |
+| **technical_advice** | 0 | 0 | 0 | 13 |
+
+**Initial diagnosis:** The model predicted `technical_advice` for all 34 test questions in every trial. The largest confusion involved 11 `conceptual` questions classified as `technical_advice`, with no errors in the opposite direction. This suggests the classifier did not learn to distinguish the four categories. Although `technical_advice` is the largest category in the training dataset, the results alone cannot establish whether class imbalance, inconsistent labels, or the training configuration caused the collapse. Further investigation is necessary.
 **My biggest off-diagonal number, and what it means:**
 <!-- Not "the model made mistakes" — WHICH boundary it didn't learn, and which
      direction. "7 real analysis posts were called hot_take and only 3 went the
