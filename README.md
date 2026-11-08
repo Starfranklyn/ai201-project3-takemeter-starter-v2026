@@ -438,53 +438,101 @@ AI assisted with the labeling and development process, but the initial model's e
 
 ## Agreement Report
 
-<!-- Your rate against the staff set, and every disagreement adjudicated.
+### Independent Labeling Results
 
-     Remember you labelled these 30 under the STAFF taxonomy in
-     data/staff_taxonomy.md, not your own — so every argument below is made
-     from those definitions and those decision rules. -->
+I independently classified 30 posts using the staff taxonomy before viewing the staff labels. I then compared my classifications against the official labels using `agreement.py`.
 
-**Agreement rate:** ___ / 30 = ___%
+| Measure | Result |
+|---|---:|
+| Total posts | 30 |
+| Agreements | 23 |
+| Disagreements | 7 |
+| Agreement rate | 77% |
 
-<!-- Nobody grades this number. A 60% who argues every disagreement from the
-     stated rules beats a 95% who wrote "staff was right" nine times. Several
-     of the 30 were chosen because they're genuinely ambiguous — you should be
-     winning some of these. -->
+The comparison produced `agreement_results.json`. I preserved my original classifications in `my_staff_labels.csv`.
 
-**Disagreements**
+### Disagreement Adjudication
 
-<!-- Three lines each: the post, both labels, and who you think is right and
-     why — grounded in the staff definitions you were both applying.
+**1. SP_002 — Sleep and running performance**
 
-     Then sort each into one of three piles:
-       (a) the rule covered it and I applied it loosely → a consistency problem
-       (b) the rule genuinely doesn't say               → a gap in the definitions
-       (c) the rule is ambiguous here and my reading is defensible → argue it.
-           This is a legitimate win.
+- **Post:** "I tracked sleep against session quality for eleven weeks. Under seven hours the next day's intervals were 6-8 seconds per mile slower, every time bar one. Small sample, one runner, but it's consistent enough that I've stopped scheduling hard days after late shifts."
+- **Staff label:** `analysis`
+- **My original label:** `reaction`
+- **My final decision:** `analysis`
+- **Category:** (a) Consistency problem
+- **Reason:** I initially focused on the writer's personal response. However, the eleven weeks of observations and measured differences in running performance support the conclusion.
 
-     Pile (a) is the one that matters most for your diagnosis: if you applied a
-     written rule two different ways on 30 posts, that is direct evidence about
-     what you did across your own 200. -->
+**2. SP_004 — Hill and marathon slowdown**
 
-**1.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
+- **Post:** "Everyone blames the hill at 18 miles. I split the field into people who ran the first half under 1:45 and over, and the slowdown after 18 was almost identical for both groups. If the hill were the problem the fast starters would fall apart harder."
+- **Staff label:** `analysis`
+- **My original label:** `reaction`
+- **My final decision:** `analysis`
+- **Category:** (a) Consistency problem
+- **Reason:** I initially interpreted the post as a reaction. On review, the comparison between two groups provides evidence for the writer's argument about the hill.
 
-**2.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
+**3. SP_005 — Carbon-plated shoes**
 
-**What the pattern in my disagreements tells me:**
+- **Post:** "Carbon plates aren't the whole story. My times dropped 2% in the shoes and another 2% the following year in the same pair, when the only thing that changed was going from 35 to 50 miles a week."
+- **Staff label:** `analysis`
+- **My original label:** `reaction`
+- **My final decision:** `analysis`
+- **Category:** (a) Consistency problem
+- **Reason:** I initially thought the numerical evidence was insufficient. However, the comparison between two years supports the argument that improved performance cannot be attributed entirely to carbon-plated shoes.
+
+**4. SP_006 — First-time marathon participants**
+
+- **Post:** "Checked the entry lists. 41% of this year's field have never run the distance before, against 26% five years ago. That's why the finish-line photos look different, not because standards dropped."
+- **Staff label:** `analysis`
+- **My original label:** `hot_take`
+- **My final decision:** `analysis`
+- **Category:** (a) Consistency problem
+- **Reason:** I initially thought the percentages were insufficient to qualify as analysis. On review, the comparison between 41% and 26% provides evidence for the writer's conclusion.
+
+**5. SP_007 — Temperature and running performance**
+
+- **Post:** "Ran the same loop in 4C and in 24C within a fortnight, same effort by heart rate. 90 seconds slower in the heat over six miles. People keep saying heat costs you 'a bit' and it's more than that."
+- **Staff label:** `analysis`
+- **My original label:** `reaction`
+- **My final decision:** `analysis`
+- **Category:** (a) Consistency problem
+- **Reason:** I initially considered the measurements insufficient. On review, the comparison between runs at two temperatures supports the writer's argument about the effect of heat on performance.
+
+**6. SP_008 — Marathon non-starter rates**
+
+- **Post:** "Went back through the club results going back to 2012. Every single year the number of people who enter the spring marathon and don't start it sits between 18 and 23 percent. It's not a bad-luck year, it's thebase rate."
+- **Staff label:** `analysis`
+- **My original label:** `hot_take`
+- **My final decision:** `analysis`
+- **Category:** (a) Consistency problem
+- **Reason:** I initially thought the numbers were insufficient. On review, the historical results support the argument that marathon non-starter rates follow a recurring pattern.
+
+**7. SP_010 — Running shoes and performance**
+
+- **Post:** "Three of us ran the same session on the same day, different shoes, within 10 seconds of each other over 5 miles. I'm not saying shoes do nothing, but whatever they do was smaller than the noise between three people."
+- **Staff label:** `analysis`
+- **My original label:** `hot_take`
+- **My final decision:** `analysis`
+- **Category:** (a) Consistency problem
+- **Reason:** I initially thought the numerical evidence was insufficient. On review, I accepted that the comparison between three runners supports the argument, although the sample is small.
+
+### Disagreement Categories
+
+| Category | Count |
+|---|---:|
+| (a) Consistency problem | 7 |
+| (b) Gap in the definitions | 0 |
+| (c) Defensible alternative interpretation | 0 |
+
+### What I Learned
+
+My disagreements followed a consistent pattern. I sometimes treated posts containing personal experiences as reactions and considered some numerical comparisons insufficient to qualify as analysis.
+
+After reviewing the staff taxonomy, I recognized that the important distinction is whether specific evidence supports the writer's argument. The evidence does not have to establish a scientifically conclusive result to qualify as `analysis`.
+
+All seven disagreements were classified as consistency problems in my application of the taxonomy. I did not identify a definition gap or retain an alternative interpretation in this review.
+
+The original agreement rate remains 77%. My adjudications explain the disagreements; they do not replace my independent labels or retroactively increase the agreement score.
 
 
 
