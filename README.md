@@ -349,15 +349,18 @@ AI assisted with the labeling and development process, but the initial model's e
 
 ## Baseline vs. Trained
 
-<!-- Both models on the same posts. `python baseline.py --trained results.json`
-     prints this table for you. -->
+**Prediction:** Based on the initial Unit 5 results, I expect the fine-tuned DistilBERT model to outperform the zero-shot baseline on `technical_advice`, but perform worse on `conceptual`, `learning`, and `troubleshooting`. I also expect the baseline to achieve a higher overall macro F1 because it appears to distinguish more categories.
 
 | Measure | Baseline | Trained | Difference |
 |---|---|---|---|
-| Overall accuracy |  |  |  |
-| Macro F1 |  |  |  |
-| F1 — `label_one` |  |  |  |
-| F1 — `label_two` |  |  |  |
+| Overall accuracy | 0.412 | 0.382 | -0.029 |
+| Macro F1 | 0.391 | 0.138 | -0.252 |
+| F1 — `conceptual` | 0.462 | 0.000 | -0.462 |
+| F1 — `learning` | 0.545 | 0.000 | -0.545 |
+| F1 — `technical_advice` | 0.000 | 0.553 | +0.553 |
+| F1 — `troubleshooting` | 0.556 | 0.000 | -0.556 |
+
+**Interpretation:** The zero-shot baseline achieved 41.2% accuracy and a macro F1 of 0.391, compared with 38.2% accuracy and a macro F1 of 0.138 for the fine-tuned DistilBERT model. The trained model performed better on `technical_advice` but predicted that category for every test question, resulting in zero F1 for the other three categories. The baseline showed the opposite pattern, with nonzero F1 for `conceptual`, `learning`, and `troubleshooting`, but zero F1 for `technical_advice`. These results suggest that the trained model failed to learn useful distinctions between the four labels. Further testing across three random seeds is needed to determine whether this behavior is consistent.
 
 **What I predicted before I looked:**
 <!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A
