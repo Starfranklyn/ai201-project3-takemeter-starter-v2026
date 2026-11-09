@@ -407,19 +407,30 @@ AI assisted with the labeling and development process, but the initial model's e
 
 
 ---
+**My biggest off-diagonal number, and what it means:**
+
+The largest off-diagonal value was 11: the model classified 11 actual `conceptual` questions as `technical_advice`. There were no errors in the opposite direction because the model never predicted `conceptual`.
+
+This shows that the model failed to learn the boundary between questions seeking conceptual explanations and questions seeking technical advice. The same pattern occurred across all three seeds, suggesting a consistent classification problem rather than an isolated result from one random split.
+
 
 ## Verdicts and Diagnoses
 
-<!-- MET or MISSED against LAST UNIT's target. The target has to hold across
-     all three seeds, not turn up sometimes. -->
-
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Overall accuracy | ≥65% | MISSED | All three seeds achieved 38.2% accuracy, below the required threshold. |
+| 2 | Per-label F1 | ≥0.50 for every label | MISSED | Only `technical_advice` met the threshold (0.553). The other three categories had F1 scores of 0.000 in every run. |
+| 3 | Dataset balance | No label above 40% | MET | The largest category, `technical_advice`, contained 88 of 225 posts (39.1%). |
+| 4 | Human agreement | ≥80% on 20 posts using the original four-label taxonomy | NOT MEASURED | The available staff exercise used 30 running-related posts and a different three-label taxonomy. Its 77% agreement cannot establish this criterion. |
+| 5 | High-confidence accuracy | ≥75% accuracy among predictions with confidence ≥0.80 | NOT MEASURED | The original results saved confidence summaries but not the number or accuracy of predictions reaching the 0.80 threshold. |
+
+**Diagnosis of the missed criteria:**
+
+The original model predicted `technical_advice` for every test example across all three seeds. This explains the low overall accuracy and the zero F1 scores for three categories. The dataset met its balance target, but the model did not learn to distinguish the categories.
+
+The separate human-agreement exercise produced 23 agreements out of 30 posts (77%). All seven disagreements were adjudicated as consistency problems in my application of that exercise's taxonomy. This demonstrates the importance of clear labeling rules, but it does not establish that inconsistent labels caused the TakeMeter model's classification errors.
+
+The original confidence evaluation was insufficient to test Criterion 5 because it compared the most and least confident thirds rather than applying the specified 0.80 threshold. I corrected that measurement for the after-runs without changing the acceptance criterion.
 
 **Diagnoses**
 
@@ -542,39 +553,59 @@ The original agreement rate remains 77%. My adjudications explain the disagreeme
 
 **What I changed:**
 
+I increased the number of training epochs from 3 to 6 while keeping the DistilBERT model, learning rate (2e-5), batch size (16), maximum sequence length (128), and random seeds (42, 7, and 2024) unchanged. I also added an evaluation measurement for predictions with confidence of at least 0.80. This measurement change did not alter the model's training.
+
 **Which diagnosis pointed at it:**
 
+In the original three runs, the model predicted `technical_advice` for every test example. Each run achieved 38.2% accuracy and a macro F1 score of 0.138. The confusion matrices showed that the model failed to recognize the other three categories.
+
+I suspected that three training epochs might not be enough for the model to learn the distinctions between categories. I therefore tested whether additional training would reduce its dependence on `technical_advice`.
+
+The improvement helped, although it did not solve the classification problem. Average accuracy increased from 38.2% to 52.0%, and average macro F1 increased from 0.138 to 0.357. The model began recognizing `conceptual` questions and some `troubleshooting` questions, but it still failed to predict `learning` in every run.
 ### Run Log — After
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1. Overall accuracy | ≥65% | 50.0% | 55.9% | 50.0% | MISSED — all three |
+| 2. Per-label F1 | ≥0.50 for every label | 2/4 labels passed | 2/4 labels passed | 2/4 labels passed | MISSED — all three |
+| 3. Dataset balance | No label above 40% | 39.1% maximum | 39.1% maximum | 39.1% maximum | MET — all three |
+| 4. Human agreement | ≥80% on 20 posts using the four-label taxonomy | Not measured | Not measured | Not measured | NOT MEASURED |
+| 5. High-confidence accuracy | ≥75% accuracy where confidence ≥0.80 | 0 qualifying predictions | 0 qualifying predictions | 0 qualifying predictions | MISSED — all three |
 
 **Did it help, and how do I know:**
 
-<!-- If it didn't, say so. Relabelling that didn't help is a genuinely
-     interesting result and earns full credit. -->
+Yes. Increasing the training epochs from 3 to 6 improved accuracy and macro F1 across all three seeds. Average accuracy increased from 38.2% to 52.0%, while average macro F1 increased from 0.138 to 0.357.
 
+The confusion matrices also showed a change in model behavior. Before the improvement, all 34 test predictions were `technical_advice` in every run. After the improvement, the model predicted `conceptual` and, in two runs, `troubleshooting`.
 
+However, none of the three runs reached the required 65% accuracy, and none achieved F1 ≥0.50 for all four labels. The model never predicted `learning`, and no prediction reached the 0.80 confidence threshold.
 
+Criterion 3 remained satisfied because the largest category, `technical_advice`, represented 88 of 225 labeled posts (39.1%).
+
+Criterion 4 could not be evaluated using the available human-agreement exercise. That exercise measured 77% agreement on 30 running-related posts using a separate three-label taxonomy (`analysis`, `hot_take`, and `reaction`). It does not establish agreement on 20 posts using TakeMeter's original four-label taxonomy.
 ---
 
 ## What's Still Broken
 
-<!-- For each criterion still missed: what you'd do, and why you stopped. -->
+The six-epoch model performed better than the original three-epoch model, but several problems remain.
 
+**Criterion 1 — Overall accuracy:** All three runs remained below the required 65% accuracy. The best result was 55.9% (seed 7). I would next examine misclassified posts to determine whether the model struggles with overlapping category definitions or lacks sufficient training examples.
 
+**Criterion 2 — Per-label F1:** The model met the F1 threshold for `conceptual` and `technical_advice`, but not for `troubleshooting` or `learning`. The most serious problem was `learning`, which received zero predictions across all three runs. I would prioritize collecting and reviewing additional `learning` examples, since this is the smallest category, with only 22 posts.
 
-**The gap between what I meant my labels to capture and what the model
-learned:**
-<!-- Two sentences. Your confusion matrix is the evidence. -->
+**Criterion 3 — Dataset balance:** This criterion was met. The largest category represented 39.1% of the dataset. However, the model still favored `technical_advice`, showing that satisfying the dataset-balance threshold did not guarantee balanced predictions.
 
+**Criterion 4 — Human agreement:** This criterion remains unmeasured under the original four-label taxonomy. The separate staff exercise produced 77% agreement on 30 running-related posts, but it cannot establish whether a second annotator would agree on at least 80% of 20 TakeMeter posts. I would conduct that specific annotation exercise before claiming this criterion was met.
 
+**Criterion 5 — High-confidence accuracy:** None of the improved runs produced predictions with confidence ≥0.80. I would investigate model calibration after improving classification performance, then evaluate accuracy on predictions that meet the original confidence threshold.
 
+**Why I stopped:**
+
+The assignment required one justified improvement and a comparison across the same three random seeds. I tested one change—increasing training from 3 to 6 epochs—and documented its effects. Further changes would require a separate experiment to determine which modification caused any improvement.
+
+**The gap between what I meant my labels to capture and what the model learned:**
+
+My taxonomy distinguishes conceptual explanations, troubleshooting requests, learning guidance, and technical advice, but the model still relies heavily on `technical_advice` predictions. Although additional training helped it recognize other categories, the confusion matrices show that it has not learned to identify `learning` questions reliably.
 <!-- ═════════════════════════════════════════════════════════════════════
 
      SUBMISSION CHECKLIST — unit 5
@@ -612,32 +643,5 @@ learned:**
 ---
 ## Dataset Collection Progress
 
-TakeMeter uses public discussions from the r/datascience
-Reddit community to classify posts into four categories:
-question, experience, opinion, and promotion.
 
-### Current Progress
-
-- Target dataset: 200 posts.
-- Posts collected and independently labeled: 20.
-- Labeling method: Manual cold labeling for the first 20 posts.
-- Remaining posts: 180.
-- Reddit Data API access: Requested; approval pending.
-
-### Data Collection and Review
-
-The initial 20 posts were labeled without AI assistance.
-Each post has a primary label and a note indicating that
-it was cold-labeled.
-
-The remaining posts will be collected through an authorized
-method. AI may suggest labels, but every suggested label
-will receive human review before inclusion in the dataset.
-
-### Data Handling
-
-The working dataset is stored locally in labels.csv.
-Full Reddit post text will not be uploaded to the public
-GitHub repository while applicable data-sharing permissions
-remain unresolved.
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
